@@ -82,4 +82,66 @@ Conforme esse cenário vai escalando, podemos ter milhões a bilhões de eventos
    * Dell EMC Isilon Add-on for Splunk Enterprise: fornece painéis e relatórios e também permite entender e obter relatórios importantes para monitorar a infraestrutura.
 
 
+## Installing Splunk Enterprise
+### Overview
+* Configurando um ambiente de desenvolvimento Splunk
+* Instalar Splunk no Linux, Windows e plataformas em nuvem
+* Percorrer a instalação do Splunk
+* Explicar como Splunk Cloud SaaS é ofertado
+
+### Building Splunk Environments
+Trabalharemos com Globmantics, que é uma empresa global que está trabalhando para desenvolver produtos em IA e análise, espaço e robótica.
+
+* **Landon Reed**
+   * Globmantics IT Operations fictício
+   * Ele tem experiência em Linux/AWS
+   * Sua atividade principal é fazer testes no Splunk
+* **Desenvolver o próprio site da comunidade**
+* **Lançamento da Proof of concept (POC) Splunk Enterprise**
+
+### Setting Up Splunk
+#### Registration Required!
+* Criar uma conta Splunk
+* Download do Software
+* Cloud trial
+* Acesso a comunidade
+* Splunkbase
+* Outros recursos
+
+Teremos todos os 3 pilares em uma única máquina, ou seja, teremos indexer, Search Head e Forwarder.
+
+#### Splunk License
+* Limitação na ingestão de dados, sendo 500 MB/dia.
+* Limitação de tempo: em 60 dias serão convertidos para free license
+
+#### Ports
+Default port para login 8000
+Management port 8090: gerenciamento de comunicações
+URL -> http://localhost:8000: login com usuário e senha
+
+### Splunk in the Cloud
+Diferenças entre executar o Splunk no cloud e a oferta do Splunk no cloud.
+
+#### Why Splunk Cloud
+* Organizações estão com estratégia public cloud first 
+* Organizações multi-cloud com grandes investimentos em public cloud 
+* Oportunidade de descarregar algumas tarefas administrativas ou estender a equipe do Splunk.
+
+#### SaaS
+* **AWS Regions**
+   * entender as regiões que tem disponibilidade
+* **Splunk as a Service**
+   * oferta de serviço gerenciado
+   * diferente de apenas ser executado em cloud, então se entrarmos no AWS e ativarmos o nosso ambiente Splunk, podemos fazer isso com bastante facilidade
+* **On-prem Management**
+   * Usar forwarders
+
+#### You Know Your Environment Workflows, Strategy & KPIs
+Cabe à organização decidir como você deseja usar o Splunk. 
+
+#### Splunk Cloud License
+* Data ingest limitation de 5GB/dia
+* Limitado por período de 15 dias no Splunk Enterprise SaaS offering trial
+* Limitado há algumas funcionalidades limitadas em comparação com o Splunk Enterprise
+
 
