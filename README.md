@@ -145,3 +145,73 @@ Cabe à organização decidir como você deseja usar o Splunk.
 * Limitado há algumas funcionalidades limitadas em comparação com o Splunk Enterprise
 
 
+## Navigating and Configuring the Splunk Enterprise
+### Getting Data into Splunk
+#### Data is the heart of Splunk
+* **Data Sources**
+   * Loacl Machine
+   * Forwarders: podem ser aplicados em qualquer coisa, como aplicativos, infraestrutura, dados de firewall
+   * Upload Sources
+   * Example Data
+
+### Demo: Getting Data into Splunk
+Clicando em settings, temos a seção de dados para data input, forwarding and receiving, indíces, reports, source types, ingest actions.
+Clicando em Add Data temos 3 opções:
+   * Upload: nesse caso vamos usar o upload de dados que já temos
+   * Monitor
+   * Forward
+
+* Set Source Type: podemos configurar como queremos estruturar os dados
+* Input Settings: Vamos mudar o índice
+
+Start searching gerou uma pesquisa automática com o comando
+> source="access_test.log" host="test" index="pluralsight" sourcetype="access_combined_wcookie"
+
+Depois INTERESTING FIELDS > clientip > Top values by time que gerou o seguinte comando
+> source="access_test.log" host="DESKTOP-B0L94SK" index="pluralsight" sourcetype="access_combined_wcookie"| timechart count by clientip limit=10
+
+Ao clicar na seta da lista de eventos, podemos selecionar um dado que queremos filtar e selecionar **Add to search**.
+
+### Navigating Splunk Search
+#### How to Search in Splunk
+* **Basic Search:** olhamos pelo quadro que temos na página inicial
+* **Splunk Processing Language:** é semelhante a SQL e temos sintaxes específicas na barra de pesquisa
+* **Splunkbase:** aplicativos configurados pré-construídos para que possa ser algo tão simples quanto um painel já construído ou algo que será integrado
+* **APIs:** podemos usar APIs usando SQL, construindo aplicativos personalizados
+
+##### Logs
+* **Basics Splunk Search**
+   * By time date
+   * By fields
+   * Sorting fields
+
+#### How to Search in Splunk
+* Reports & Dashboards
+* Splunkbase
+* Splunk APIs
+
+
+### Demo: Adding More Data into Splunk
+Selecionar a opção Monitor > Local Events Logs > add all > index pluralsight
+> source="WinEventLog:*" host="test"
+
+### Demo: Installing Splunk Apps
+* Dell PowerScale Add-on for Splunk
+* Splunk Machine Learning Toolkit
+
+### Splunk Roles in Search
+**Splunk Roles**
+Todos os usuários do Splunk se encaixa em uma função que dá a esse usuário diferentes funcionalidades no Splunk.
+
+#### Search Roles
+* **User** pode criar e editar as próprias pesquisas daquele usuário específico
+* **Power** pode editar objetos e alertas compartilhados
+* **Admin** pode performar em todas as funções de pesquisa do Splunk
+
+### Demo: Splunk User Roles
+Em settings > USERS AND AUTHENTICATION > Roles
+Em settings > USERS AND AUTHENTICATION > Users
+
+
+
+ 
