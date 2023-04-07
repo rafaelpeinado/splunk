@@ -111,6 +111,121 @@ Ele funciona um pouco diferente do que os exemplos anteriores.
 Temos o **Hot Tier Cache** (Não temos mais Hot e Warm, pois está tudo em um) em que temos alto desempenho. E todo o resto é **Cold Cache** que tem menor desempenho. Geralmente esses dados saem do Hot Tier Cache para o Cold Cache em cerca de 7 a 10 dias. Porém isso tem que ser bem analisado de acordo com a demanda, pois quando dos dados vão para o Cold Cache o desempenho cai muito.
 
 
+## Using Field Searches for Splunk
+### Search Bar and Timeline
+#### Navigating the Search Bar
+Quando estamos navegando no side bar temos 6 opções diferentes
+* Search Bar: é a barra de pesquisa geral, onde podemos fazer digitação livre para nossas informações, mas há uma sintaxe para isso.
+* Time range: não apenas pesquisar que é o importante, mas devemos saber o que estamos procurando de certo intervalo de tempo.
+* Job: assim temos informações sobre quanto tempo esse trabalho levou. É bom para saberse estamos construindo buscar eficientes
+* Timeline: temos a linha do tempo rápida e são gráficos de visualização rápida onde realmente podemos detalhar
+* Saved searches: temos a possiblidade de guardar pesquisas para pesquisas que precisamos repetir ou pesquisar constantemente. Ou se temos algo que precisamos compartilhar com outros usuários.
+* Modes: que podem nos ajudar a aumentar a quantidade de dados que estamos vendo em nossas pesquisas e a rapidez ocm que esses trabalhos são processados.
+
+#### Why Not Search All Results?
+Conforme os dados começam a escalar, traremos mais módulos. Por exemplo, se trouxermos nossos servidores ou infraestrutura ou informações de aplicativos, obteremos cada vez mais resultados e eventos em nossa área que estamos procurando para extrair dados. Então o que queremos fazer é ser o mais restrito possível para termos um resultado de pesquisa mais rápido. Mas também é útil para nossos usuários, porque à medida que atraímos mais usuários, também começa a escalonar o aplicativo Splunk.
+
+#### Splunk Search Modes
+* **Fast:** esse é o mais rápido e por isso do nome, mas a descoberta de campo está desativada para pesquisas de eventos. Nenhum evento ou dados de campo para pesquisas de estatísticas. Não está nos dando muitas informações completas que podemos precisar para outras áreas.
+
+* **Default:** tão inteligente é um híbrido entre o nosso modo mais detalhado e o modo rápido. A descoberta de campo está ativada para pesquisas de eventos. Nenhum evento ou dados de campo para pesquisas de estatísticas. Mas se usarmos um comando transformador seremos automaticamente alternados para o módo rápido dessa perspectiva para poder fazer essas consultas.
+
+* **Verbose:** é o mais detalhado. É a informação que está dando mais e também é a mais lenta quando falamos sobre a eficácia e eficiência de consulta, mas todos os eventos e dados de campo. Portanto, se estivermos procurando um elemento-chave, o Fireffox ou algo assim, ele irá pesquisar em todo o conteúdo e descobrir onde o Firefox foi retirado.
+
+### Search Field Operators
+#### Field Operators 
+Caracteres usados nas queries do Splunk para analisar o resultado das buscas. As funções comuns são wildcards, Booleans e operadores de comparação.
+
+
+#### Splunk Field Operators
+* **Field expression**
+   * field=value
+   * field!=value
+   * field < value
+   * field > value
+   * field <= value
+   * field >= value
+* **Boolean operators**
+   * field **NOT** value: field não contêm o valor
+   * field=value1 **OR** field=value2: field contém pelo menos um valor ou ambos
+   * field=value1 **AND** field=value2: field contém os dois valores
+* **Wildcards:** é muito poderoso quando estamos procurando por certas informações e queremos pesquisar em resultados de pesquisa maiores.
+   * Host="thenson-desktop": só terá resultado onde Host="thenson-desktop" 
+   * Host="thenson*": poderá trazer resutados onde Host="thenson-desktop", Host="thenson-server", Host="thenson-mobile"
+
+### Demo: Splunk Field Operators
+**Pesquisa equal**
+Podemos pesquisar com aspas duplas ou sem elas, por exemplo:
+> index="dev_web"
+> index=dev_web
+
+**Pesquisa not equal**
+> index!=dev_web
+> index="dev_web" clientip!="134.209.30.2"
+
+**Pesquisas Booleanas**
+> index=dev_web clientip="134.209.30.2" OR clientip="208.113.197.84"
+
+**Pesquisas Wildcards**
+> index=dev_web clientip="1*"
+> index=dev_web clientip="2*"
+> index=dev_web clientip="1*" OR clientip="2*"
+
+### Splunk Field Sidebar
+#### Splunk Field Sidebar
+Localizado na parte esquerda da tela de pesquisas do Splunk. Extrai os SELECTED FIELDS e INTERESTING FIELDS para resultos de pesquisas rápida. Também oferece reportes rápidos como os valores do topo (top values) e valores raros (rare values).
+
+* **Fields assigned**
+   * Selected fields: são os principais resultados da pesquisa
+   * Interesting fields: onde podemos ver os diferentes campos disponíveis neles.
+* **Quick field numbers**
+* **Text fields α**
+* **Numeric fields #**
+
+### Demo: Splunk Field Sidebar
+Demonstra como, por exemplo, pegar os top field values sem preciar conhecer SPL (Search Processing Language).
+Podemos promover um field de INTERESTING FIELDS para SELECTED FIELDS clicando no field e selecionando Selected Yes. Essa mudança não muda o resultado da pesquisa.
+Ao colocar um field como selected, ele aparece destacado na parte inferior de cada item do resultado da pesquisa.
+Podemos observar que quando o field estiver acompanhado de # é um valor numérico e quando estiver α é um texto ou string.
+
+**Top values by time**
+> index="dev_web"| timechart count by clientip limit=10
+
+**Top values**
+> index="dev_web"| top limit=20 clientip
+> index="dev_web"| top limit=10 clientip
+> index="dev_web"| top limit=5 clientip
+
+### Splunk Result Field
+Os campços de resultados são clicáveis
+
+#### Splunk Results Field
+Parte principal do Splunk Search onde os eventos são exibidos a partir dos resultados da pesquisa.
+
+* **Events displayed**
+   * **Formatting:** podemos formatá-los, colocá-los em diferentes áreas, vê-lops como um arquivo de dados bruto ou até mesmo separá-los, puxar campos selecionados, todos exibidos.
+   * **Per event:** podemos olhar cada evento individual e os valores e até mesmo detalhar ainda mais a pesquisa.
+* **Displayed fields clickable**
+   * **Add**
+   * **Exclude**
+   * **New**
+
+#### More **Results Display** Options
+* **Raw events:** examinamos os eventos brutos e algumas das exibições que temos
+* **Patterns:** podemos procurar padrões
+* **Statistics:** é capaz de construir estatísticas
+* **Visualizations:** podemos mudar para vários tipos de visualizações
+
+### Demo: Splunk Results Field
+Podemos visualizar com Raw, List e Table.
+
+### Best Practicies in Splunk Search
+**Obs: Infraestrutura will define Splunk Search performance**
+#### Splunk Search Tips
+* Use os critérios masi restritos disponíveis, ou seja, se estamos buscando informações sobre segurança, vamos buscar as informações que só estão em Segurança. Além disso, é preciso tomar cuidado com wildcards.
+* Timeline tem um impacto importante nas pesquisas.
+* Indexar conjuntos de dados e planejar a escala, ou seja, não devemos usar o mesmo índice para tudo e planejar a escala é o futuro, porque à medida que o futuro avança, podemos distribuir diferentes index e podemos realmente criar algumas consultas mais eficientes.
+
 
 
 
