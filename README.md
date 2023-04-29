@@ -227,6 +227,96 @@ Podemos visualizar com Raw, List e Table.
 * Indexar conjuntos de dados e planejar a escala, ou seja, não devemos usar o mesmo índice para tudo e planejar a escala é o futuro, porque à medida que o futuro avança, podemos distribuir diferentes index e podemos realmente criar algumas consultas mais eficientes.
 
 
+## Building SPL Queries in Splunk
+### What is SPL?
+#### SPL
+**S**earch **P**rocessing **L**anguage **(SPL)** que engloba todos os comandos de pesquisa e suas funções, argumentos e cláusulas. Sua sintaxe foi originalmente baseada no pipeline Unix e SQL. O escopo do SPL inclui pesquisa, filtragem, modificação, manipulação, inserção e exclusão de dados.
+
+##### Example SQL
+**SELECT** *
+**FROM** dev_web
+**Where** IP_Address=192.101.101
+
+##### Example SPL
+**Index="dev_web"** IP_Address=192.101.101
+
+### Demo: Search Processing Language Editor
+Administrator -> Preferences -> SPL Editor
+Essas mudanças não são globais, são apenas para o usuário que está realizando as mudanças.
+
+### Building SPL Queries
+#### Chaining Commands (Pipe Commands)
+Comandos de Processamento de Pesquisa (Search Processing Commands) usam o pipe | para encadear comandos de pesquisas 
+
+#### Example SPL
+Index="dev_web" IP_Address=192.101.101 | command 1 argument
+
+* **SPL Keywords**
+   * AS: é um modificador
+   * BY: é muito bom para contar
+   * OVER: usado para quando precisar passar por um campo e filtrá-lo
+   * WHERE: muito semelhante ao SQL e é bastante usado em campos booleanos
+
+Exemplo: source="WinEventLog:*" **| where** EventCode > 1000
+Where Keyword: comando do Splunk usado para retornar resultados em que o comando "where" é true.
+
+### Demo: SPL Chaining Commands
+index="pluralsight" clientip!="134.209.30.2"
+
+A configuração **No Event Sampling**, basicamente é usado para quando temos grandes conjuntos de dados dimensionados.
+
+index="pluralsight" clientip!="134.209.30.2" | where bytes > 1565
+
+index="pluralsight" clientip!="134.209.30.2" | where bytes = 1565 OR bytes=1762
+
+### SPL Filtering & Modifying Search Results
+Host=* | fields [ fieldname1 ], [ fiedname2 ]
+**Fields** adiciona ou remove o campo listado.
+
+Host=* | search [ keyword ]
+**Search** permite pesquisar texto bruto ao usar comandos de alteração.
+
+Host=* | dedup [ fieldname ]
+**Dedup** remove campos duplicados dos resultados da pesquisa
+
+Host=* | rename [ fieldname ]
+**Rename** permite que os nomes dos campos sejam alterados nos resultados da pesquisa.
 
 
+### Demo: SPL Search & Rename
+* index="pluralsight" clientip!="134.209.30.2" | fields - clientip
+   * exclui esse campo
 
+* index="pluralsight" clientip!="134.209.30.2" | fields + clientip, bytes
+   * exibe apenas os dois campos
+
+* index="pluralsight" clientip!="134.209.30.2" | search chrome
+
+* index="pluralsight" clientip!="134.209.30.2" | search firefox
+
+* index="pluralsight" clientip!="134.209.30.2" | search firefox | rename useragent as Browser
+
+
+### SPL Ordering Search Results
+Host=* | head [ number ]
+**Head** retorna os 10 primeiros eventos, a menos que seja especificado por outro número.
+
+Host=* | tail [ num ]
+**Tail** retorna os 10 últimos eventos, a menos que seja especificado por outro número.
+
+Host=* | sort [ fieldname ]
+**Sort** ordena o campo por ordem crescente.
+
+Host=* | reverse
+**Reverse** coloca todos os resultados da pesquisa em ordem inversa.
+
+Host=* | tables [ fieldname ]
+**Tables** é um comando SPL que cria uma tabela com campos específicos.
+
+### Demo: SPL Sort, Tail, & Head
+* index="pluralsight" method=GET
+* index="pluralsight" method=GET | tail
+* index="pluralsight" method=GET | tail 5
+* index="pluralsight" method=GET | head
+* index="pluralsight" method=GET | sort bytes
+* index="pluralsight" method=GET | sort bytes desc
