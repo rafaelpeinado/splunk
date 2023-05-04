@@ -320,3 +320,76 @@ Host=* | tables [ fieldname ]
 * index="pluralsight" method=GET | head
 * index="pluralsight" method=GET | sort bytes
 * index="pluralsight" method=GET | sort bytes desc
+
+
+## Performing Transformative Searches in Splunk
+### What Are Transformative Commands?
+#### Transforming Commands
+Permite que comandos de pesquisa criem estrutura de dados a partir de valores de campo. Frequentemente usado para visualizações do Splunk Enterprise.
+
+Host=* | top [ fieldname ]
+**Top** retorna os 10 valores mais frequentes do resultados padrão.
+
+Host=* | rare [ fieldname ]
+**Rare** retorna os 10 valores menos frequentes resultados padrão.
+
+Host=* | highlight [ fieldname1 ] [ fieldname2 ]
+**Highlight** mostra os resultados no modo de eventos brutos com os campos realçados.
+
+Host=* | contingency [ fieldname1 ] [ fieldname2 ]
+**Contingency** mostra associações entre campos na tabela.
+
+### Demo: SPL Top, Rare, & Contingency
+* index="pluralsight" | top limit=3 referer_domain
+* index="pluralsight" | rare limit=3 referer_domain
+* index="pluralsight" | contingency clientip "referer_domain"
+
+### Splunk Stats Commands
+#### Stats Commands
+Tipo especial de transformação de comandos do Splunk usado principalmente para cálculos para resultados de tabela.
+
+Host=* | stats avg([ fieldname ])
+**Average** calcula os resultados com base na função média.
+
+Host=* | stats count(eval[ fieldname ]) as newname
+**Count** retorna o gráfico de série temporal sobre o elemento de dados seguinte ao comando.
+
+Host=* | stats max(fieldname1)
+**Max** retorna o maior valor de um campo específico.
+
+Host=* | stats min(fieldname)
+**Min** retorna o menor valor de um campo específico.
+
+Host=* | stats sum(fieldname)
+**Sum** retorna a soma dos campos especificado.
+
+### Demo: SPL Min, Max, Average, & Count
+* index="pluralsight" | stats min(bytes)
+* index="pluralsight" | stats max(bytes)
+* index="pluralsight" | stats max(bytes) by clientip
+* index="pluralsight" | stats avg(bytes)
+* index="pluralsight" | stats avg(bytes) by clientip
+* index="pluralsight" | stats count by clientip
+
+### Splunk Chart Commands
+#### Chart Commands
+Tipo de comando de transformação do Splunk para apresentação de dados em tabelas ou visualização. Normalmente inclui comandos de estatísticas.
+index="pluralsight" source="WinEventLog:*" | chart count as error by Keywords
+
+Host=* | chart somefunction([ fieldname ])
+**Chart** retorna o gráfico do elemento de dados seguinte ao comando. Comumente usado com o comando stat.
+
+Host=* | timechart somefunction([ fieldname ])
+**Timechart** retorna o gráfico de série temporal sobre o elemento de dados seguinte ao comando. Comumente usado com o comando stat.
+
+### SPL Chart & Timechart
+* index="pluralsight" | chart count as clientip by referer_domain
+* index="pluralsight" source="WinEventLog:*" | timechart count as messages by Keywords
+
+
+
+
+
+
+
+
