@@ -387,6 +387,21 @@ Host=* | timechart somefunction([ fieldname ])
 * index="pluralsight" source="WinEventLog:*" | timechart count as messages by Keywords
 
 
+## Creating Splunk Lookup and More
+### What is a Lookup?
+#### Lookup
+Mapeamento de tabela no Splunk para associar pares de valores-chave na saída da pesquisa.
+
+### Demo: Splunk Lookup
+Settings -> Lookup -> Lookup table files -> Add new
+Launcher
+File
+ms-eventcodes.csv 
+
+* index="pluralsight" source="WinEventLog:*" EventCode=5379 | lookup ms-eventcodes.csv EventCode OUTPUT definition | table EventCode definition
+
+### More Splunk Learning Resources
+[Sign up for a free developer license](https://dev.splunk.com/enterprise/dev_license)
 
 
 

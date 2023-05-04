@@ -1,0 +1,33 @@
+EventCode, definition
+4616,The system time was changed.
+4618,A monitored security event pattern has occurred
+4621,Administrator recovered system from CrashOnAuditFail
+4622,A security package  has been loaded by the Local Security Authority.
+4624,An account was successfully logged on
+4625,An account failed to log on
+4626,User/Device claims information
+4627,Group membership information.
+4634,An account was logged off
+4646,IKE DoS-prevention mode started
+4647,User initiated logoff
+4648,A logon was attempted using explicit credencials
+4649,A replay attack was detected
+4650,An IPsec Main Mode security association was established
+4651,An IPsec Main Mode security association was established
+4652,An IPsec Main Mode negociation failed
+4653,An IPsec Main Mode negociation failed
+4654,An IPsec Quick Mode negociation failed
+4655,An IPsec Main Mode security association ended
+4656,A handle to an object was requested
+4657,A registry value was modified
+4658,The handle to an object was closed
+4659,A handle to an object was requested with intent to delete
+4660,An object was deleted
+4661,A handle to an object was requested
+4662,An operation was performed on an object
+4663,An attempt was made to access an object
+4664,An attempt was made to create a hard link
+5377,Credential Manager credentials were restored from a backup
+5378,The requested credentials delegation was disallowed by policy
+5379,Credential Manager credentials were read
+5380,Vault Find Credential
