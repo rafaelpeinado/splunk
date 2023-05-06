@@ -157,6 +157,7 @@ São nomes alternativos que atribuímos a um ou mais campos.
 É uma hieraquia de consjuntos de dados e outros objetos de conhecimento.
 
 |                                               Data Model                                               |
+|--------------------------------------------------------------------------------------------------------|
 |                          Events                           |          Searches           | Transactions |
 |          Dataset1           |          Dataset2           |          Dataset3           |   Dataset4   |
 |      KO      |      KO      |      KO      |      KO      |      KO      |      KO      |      KO      |
@@ -205,6 +206,163 @@ Entrando no Data Model Alerts podemos verificar que podemos usar a tag alert pel
 
 Também podemos ver os Data Models pelo diretório < pasta-de-instalação >/Splunk/etc/apps/Splunk_SA_CIM/default/datamodels.conf
 
+
+## Configuring the Common Information Model Add-on
+### Configuring and Employing the Common Information Model Add-on
+* Podemos melhorar muito o desempenho de nosso CIM definindo restrições de índice.
+    * **Whitelist** de índices específicos para restringir a carga de pesquisa do CIM
+    * Através da interface web do Splunk:
+        * Apps > manage apps > setup
+        * Selecione o data model
+        * selecione o índice que deseja colocar na whitelist na seção de index whitelist
+
+O Splunk também recomenda:
+* Acelerar os data models do CIM
+    * Todos os data models incluídos no CIM têm a aceleração **desligada** por padrão
+
+A aceleração de data models cria resumos de dados com base nas configurações de intervalo de resumo definidas. O modelo de dados pesquisa nesse resumo em vez de em todo o conjunto de dados.
+
+#### Why Normalize Data
+Dois casos de uso
+* Desenvolvendo um aplicativo de Splunk
+* Construindo um add-on para o Splunk
+    * Podemos desenvolvê-lo para ingerir e analisar um tipo muito específico de dados. Se for um fornecedor que gera arquivos de log em um formato específico, convém desenvolver o aplicativo ou o complemento para normalizar esses dados para o restante do ambiente Splunk do cliente.
+* Para nosso próprio dashboard
+    * Também podemos querer normalizar nossos dados para garantir que todos os nossos dashboards estejam usando as mesmas estruturas de dados. É muito difícil construir um painel preciso, por exemplo, se os nomes dos campos forem todos diferentes ou se os dados não estiverem no formato correto.
+
+#### Six Steps in the Data Normalization Pipeline
+* Receber os dados (Get in data)
+    * Forwarders
+    * Monitors
+    * File uploads
+* Examinar os dados (Examine your data)
+    * Determinar quais data models no CIM são relevantes para nossos dados
+    * Usar a tabela de referência do CIM para achar campos relevantes
+* Criar e tagear event-types (Create and tag event-types)
+    * Olhamos para as tags que estão disponíveis no data model
+    * Creamos event-types usando os dados e adicionamos tag à eles
+* Verificar as tags (verify tags)
+    * Verificamos as tags usando a ferramenta Pivot
+* Normalizar os campos (Normalize fields)
+    * Criamos aliases para os campos
+    * Usamos extrações de campos (se os dados não tivessem nenhum nome de coluna)
+    * Creamos lookups 
+* Validar em relação ao mmodelo de dados
+
+
+### Introducing Our Use Case
+* Globomantics
+    * Uma organização de e-commerce de médio porte
+    * Precisa de insights sobre o tempo de atividade de seu e-commerce website
+    * Eles têm três sistemas de origem que são normeados como System1, System2 e System3.
+* System1
+|        col1       |        col2       |        col3       |        col4       |        col5       |
+|-------------------|-------------------|-------------------|-------------------|-------------------|
+|  Email addresses  |     Usernames     |        URLs       |    IP adresses    | HTTP status codes |
+
+* System2
+|        user       |         --        |     dest_host     |      dest_ip      |         ?         |
+|-------------------|-------------------|-------------------|-------------------|-------------------|
+|     Usernames     |  Email addresses  |        URLs       |    IP adresses    | HTTP status codes |
+
+* System3 (um log básico do Apache)
+66.161.152.210 - kunde2702 [ 09/09/2019:20:24:16 -0600 ] "PUT /evolve" 100 50216 "https://www.internationalinterfaces.info/empower/integrate" "Mozilla/5.0 (Windows; U; Windows 98) AppleWebKit/533.39.8 (KHTML, like Gecko) Version/5.2 Safari/533.39.8"
+
+* Remote IP: 66.161.152.210
+* User Identifier: -
+* User Id: kunde2702
+* Timestamp: [ 09/09/2019:20:24:16 -0600 ]
+* Resource requested: "PUT /evolve"
+* HTTP status code: 100
+* Bytes returned: 50216
+* Request line: "https://www.internationalinterfaces.info/empower/integrate" "Mozilla/5.0 (Windows; U; Windows 98) AppleWebKit/533.39.8 (KHTML, like Gecko) Version/5.2 Safari/533.39.8"
+
+* Globomantics deseja construir um dashboard que mostre:
+    * Número de web requests com sucesso (HTTP 200)
+    * Número de web requests com erros (HTTP not 200)
+    * Web requests, destination IP, status e username
+
+#### Which Fields Will We Need?
+* Username
+* IP Address
+* HTTP Status Code
+
+#### Transforming Columns
+| New Column name          | Column name from System1 | Column name from System2 | Column name from System3 |
+|--------------------------|--------------------------|--------------------------|--------------------------|
+| Username                 |  col2                    | user                     |                          |
+| Destination IP Address   |  col1                    | --                       |                          |
+| HTTP Status Code         |  col5                    | httpst                   |                          |
+
+#### Using the CIM Reference Tables
+Olhando a documentação, faremos referência ao data model CIM **Web**.
+
+### Demo: Making Data CIM Compliant in Splunk
+* Carrega o arquivo system1 -> Host field value: system1 -> Index: main
+* Carrega o arquivo system2 -> Host field value: system2 -> Index: main
+* Carrega o arquivo system3 -> Host field value: system3 -> Index: main
+
+* Settings -> Data Models -> Search/filter for **Web** -> Clica no Web -> (`cim_Web_indexes`) tag=web
+* Apps -> Manage Apps -> Filter for **CIM** -> Set up -> Canto inferior esquerdo procurar por Web -> Indexes whitelist: main
+    * Nós também podemos marcar Accelerate e o Splunk recomenda isso na maioria dos casos.
+* Criar event-types e usar tags apropriadas, e nesse caso vamos usar a tag=web
+    * Settings -> Event types -> Criar em New Event Type:
+        * Destination App: search
+        * Name: CIMWeb
+        * Search string (apenas dados que carregamos recentemente): host=system1 OR host=system2 OR host=system3
+        * Tag(s): web
+    * Clicar em Save
+    * Alterar as permissões de Private para Global **(isso não deve ser feito em produção)**
+* Settings -> Data Models -> Search/filter for **Web** -> Clica no Web -> Pivot -> Clicar no conjunto de dados **Web** -> Se tudo der certo, ele trará todos os eventos para a tabela dinâmica.
+* Settings -> Data Models -> Search/filter for **Web** -> Clica no Web -> Split Rows + -> dest
+* Settings -> Fields -> Fields aliases -> New Field Alias:
+    * Destination App: search
+    * Name: sys1_alias
+    * Apply to: host
+    * named: system1
+    * Field aliases e cliar em **Add another field** para criar mais campos
+        * col4=dest
+        * col5=status
+        * col2=user
+    * Clicar em Save
+
+No system2 não temos o HTTP Status, então temos que apenas ignorar esse dado
+* Settings -> Fields -> Fields aliases -> New Field Alias:
+    * Destination App: search
+    * Name: sys2_alias
+    * Apply to: host
+    * named: system2
+    * Field aliases
+        * dest_ip=dest
+    * Clicar em Save
+
+Agora **system3** iremos usar a ferramenta extratora de campo integrada do Splunk
+* Página inicial -> Search & Reporting -> pesquisar por **host="system3"**
+    * Vemos que o Splunk tem dificuldades em analisar muitos desses dados
+    * Clica em Extract New Fields -> clicamos em um evento de amostra e usaremos o método de **regex**
+    * Destaca o campo que quer -> Field Name: dest -> Add Extraction e após isso o Splunk interpretará essa extração e mostrará todos os campos que foram reconhecidos.
+    * Destaca o campo de Http Status -> Field Name: status -> Add Extraction
+        * Caso alguns dados não tenham sido reconhecidos e seja importante treinar mais o Splunk, basta clicar em outra amostra que não foi reconhecida e repetir o processo.
+    * Destaca o campo de user -> Field Name: user -> Add Extraction
+    * Clicar em Next
+    * Permissions, nesse caso, foi escolhido All apps **não fazer isso em produção**
+    * Clicar em Finish
+
+Para validar se nosso exercício de conformidade CIM funcionou.
+* Settings -> Data Models -> Search/filter for **Web** -> Clica no Web -> Pivot -> Clicar no conjunto de dados **Web** -> Split Rows + -> dest depois status e depois user
+
+Vamos criar dois painéis para sucessos e erros
+* Clicar em Single Value (42) -> Filter: + Add Filter: status -> Match: is: 200
+    * Value -> Caption: Successful web requests
+    * Save as... -> Dashboard Panel -> Panel Title: Successful web requests -> Save
+* Clicar em Single Value (42) -> Filter: + Add Filter: status -> Match: is: 404
+    * Value -> Caption: Not found
+    * Color -> Use Colors: Yes
+    * Save as... -> Existing -> Web -> Panel Title: Page not found
+* Clicar em Statistics table -> dividir as linhas por user, dest e status
+    * clicar em status e colorir até 201 é green e os demais é red
+    * Save as... -> Existing -> Web -> Panel Title: Successful vs unsuccessful
+* View Dashboard -> Edit -> Mover a janela do lado do outro
 
 
 
